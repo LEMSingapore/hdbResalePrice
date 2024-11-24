@@ -1,9 +1,8 @@
-pip install joblib
-
 import streamlit as st
 import pandas as pd
 import joblib
 import numpy as np
+import os
 
 # Set page config
 st.set_page_config(
@@ -19,9 +18,18 @@ st.write("Predict HDB resale prices based on various features")
 # Load the model
 @st.cache_resource
 def load_model():
-    return joblib.load('XBR_trained_hdb_resale_modelV5.pkl')
+    model_path = os.path.join(os.path.dirname(__file__), 'models', 'XBR_trained_hdb_resale_modelV5.pkl')
+    try:
+        return joblib.load(model_path)
+    except Exception as e:
+        st.error(f"Error loading model: {str(e)}")
+        return None
 
 model = load_model()
+
+if model is None:
+    st.error("Could not load the model. Please check if the model file exists in the correct location.")
+    st.stop()
 
 # Create columns for input
 col1, col2 = st.columns(2)
@@ -50,44 +58,48 @@ with col2:
 
 # Create prediction button
 if st.button("Predict Price"):
-    # Create the feature array (same order as training data)
-    features = [
-        floor_area,
-        lease_commence_date,
-        postal_code,
-        current_year
-    ]
+    try:
+        # Create the feature array (same order as training data)
+        features = [
+            floor_area,
+            lease_commence_date,
+            postal_code,
+            current_year
+        ]
+        
+        # Add town one-hot encoding
+        for town in towns:
+            features.append(1 if town == selected_town else 0)
+        
+        # Add flat_type one-hot encoding
+        for flat_type in flat_types:
+            features.append(1 if flat_type == selected_flat_type else 0)
+        
+        # Make prediction
+        prediction = model.predict([features])
+        
+        # Round to nearest 1,000
+        rounded_price = round(prediction[0] / 1000) * 1000
+        
+        # Display prediction
+        st.success(f"Predicted Resale Price: ${rounded_price:,.2f}")
+        
+        # Additional details
+        st.write("### Property Details")
+        details = {
+            "Floor Area": f"{floor_area} sqm",
+            "Town": selected_town,
+            "Flat Type": selected_flat_type,
+            "Lease Commence Date": lease_commence_date,
+            "Postal Code": postal_code
+        }
+        
+        # Display details in a nice format
+        for key, value in details.items():
+            st.write(f"**{key}:** {value}")
     
-    # Add town one-hot encoding
-    for town in towns:
-        features.append(1 if town == selected_town else 0)
-    
-    # Add flat_type one-hot encoding
-    for flat_type in flat_types:
-        features.append(1 if flat_type == selected_flat_type else 0)
-    
-    # Make prediction
-    prediction = model.predict([features])
-    
-    # Round to nearest 1,000
-    rounded_price = round(prediction[0] / 1000) * 1000
-    
-    # Display prediction
-    st.success(f"Predicted Resale Price: ${rounded_price:,.2f}")
-    
-    # Additional details
-    st.write("### Property Details")
-    details = {
-        "Floor Area": f"{floor_area} sqm",
-        "Town": selected_town,
-        "Flat Type": selected_flat_type,
-        "Lease Commence Date": lease_commence_date,
-        "Postal Code": postal_code
-    }
-    
-    # Display details in a nice format
-    for key, value in details.items():
-        st.write(f"**{key}:** {value}")
+    except Exception as e:
+        st.error(f"An error occurred during prediction: {str(e)}")
 
 # Add some information about the model
 with st.expander("Model Information"):
