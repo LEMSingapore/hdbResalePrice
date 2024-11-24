@@ -17,7 +17,7 @@ st.write("Predict HDB resale prices based on various features")
 # Load the model
 @st.cache_resource
 def load_model():
-    return joblib.load('models/XBR_trained_hdb_resale_modelV5.pkl')
+    return joblib.load('XBR_trained_hdb_resale_modelV5.pkl')
 
 model = load_model()
 
