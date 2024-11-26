@@ -37,7 +37,7 @@ col1, col2 = st.columns(2)
 with col1:
     # Numerical inputs
     floor_area = st.number_input("Floor Area (sqm)", min_value=1.0, max_value=500.0, value=148.0)
-    lease_commence_date = st.number_input("Lease Commence Date", min_value=1960, max_value=2024, value=1992)
+    lease_commence_date = st.number_input("Lease Commencement Date", min_value=1960, max_value=2024, value=1992)
     postal_code = st.number_input("Postal Code", min_value=100000, max_value=999999, value=520329)
     current_year = 2024  # You can make this dynamic if needed
 
@@ -90,7 +90,7 @@ if st.button("Predict Price"):
             "Floor Area": f"{floor_area} sqm",
             "Town": selected_town,
             "Flat Type": selected_flat_type,
-            "Lease Commence Date": lease_commence_date,
+            "Lease Commencement Date": lease_commence_date,
             "Postal Code": postal_code
         }
         
