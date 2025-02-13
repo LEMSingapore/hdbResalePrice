@@ -18,7 +18,7 @@ st.write("Predict HDB resale prices based on various features")
 # Load the model
 @st.cache_resource
 def load_model():
-    model_path = os.path.join(os.path.dirname(__file__), 'models', 'XBR_trained_hdb_resale_modelV5.pkl')
+    model_path = os.path.join(os.path.dirname(__file__), 'models', 'XBR_trained_hdb_resale_modelV4a.pkl')
     try:
         return joblib.load(model_path)
     except Exception as e:
